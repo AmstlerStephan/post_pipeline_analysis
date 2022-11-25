@@ -4,38 +4,28 @@ library(readr)
 library(jsonlite)
 library(tidyverse)
 library(data.table)
+library(argparser)
 
-barcodes_path <-
-  list.dirs("run7/Nanostats/stats", recursive = FALSE)
-stats <- list()
-counter <- 1
+parser <- arg_parser("Commandline parser")
+parser <- add_argument(parser, "--nanostat_tsv", help = "NanoStat tsv file")
+argv <- parse_args(parser)
 
-for (i in barcodes_path) {
-  for (j in list.files(i)) {
-    
-    nanostat <- read_tsv(paste(i, j, sep = "/")) %>% 
-      transpose(make.names = "Metrics") %>%
-      mutate(read = str_split(j, '_', n = 2)[[1]][2],
-             barcode = basename(i))
+nanostat_tsv <- argv$nanostat_tsv
+filename <- str_split(basename(nanostat_tsv), "\\.", simplify = TRUE)[1]
+info <- str_split(filename, "_", simplify = TRUE)
+barcode <- info[1]
+run <- info[2]
+min_length <- info[3]
+min_qscore <- info[4]
 
-    stats[[counter]] <- nanostat
-    
-    counter <- counter + 1
-  }
-}
+nanostat <- read_tsv(nanostat_tsv) %>%
+transpose(make.names = "Metrics") %>%
+mutate(
+  run = run,
+  barcode = barcode,
+  min_length = min_length,
+  min_qscore = min_qscore
+)
 
-stats <- bind_rows(stats) %>% 
-  type_convert() %>% 
-  group_by(barcode) %>%
-  filter(number_of_reads > 10000) %>% 
-  mutate(max = max(mean_qual),
-         min = min(mean_qual),
-         diff = max(mean_qual) - min(mean_qual))
-
-stats %>% 
-  ggplot(aes(barcode, mean_qual, color = read)) +
-  geom_point() +
-  geom_segment(aes(x=barcode, xend=barcode, y=min, yend=max)) +
-  coord_cartesian(ylim= c(10,13)) +
-  scale_y_continuous(breaks = seq(10,13, 1))
-  
+filename_nanostat <- paste(filename, "_parsed", ".tsv", sep = "")
+write_tsv(nanostat, filename_nanostat)
