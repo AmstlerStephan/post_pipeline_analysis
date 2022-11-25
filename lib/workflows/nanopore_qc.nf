@@ -11,9 +11,9 @@ for (param in requiredParams) {
 }
 
 // scripts
-parse_stats = file( "${projectDir}/bin/qc_run.R", checkIfExists: true)
+parse_nanostat = file( "${projectDir}/bin/parse_nanostat.R", checkIfExists: true)
 merge_parsed_run = file( "${projectDir}/bin/merge_parsed_run.R", checkIfExists: true)
-qc_summary = file( "${projectDir}/bin/qc_summary.R", checkIfExists: true)
+parse_metrics = file( "${projectDir}/bin/parse_run_metrics.R", checkIfExists: true)
 
 // STAGE CHANNELS
 if (params.all_runs) {
@@ -37,11 +37,20 @@ Channel.fromPath("${params.input}/**/${params.sample_sheet}", type: 'file')
         sample_sheets.put("$run", sample_sheet_path)
 }
 
+run_metrics = Channel.fromPath("${params.input}/**/*.md", type: 'file')
+.map { 
+    sample_sheet_path ->
+        run = ( sample_sheet_path =~ /run\d*_*V*\d*/)[0]
+        tuple( run, barcode_path )
+}
+ 
+
 include {MERGE_FILTER_FASTQ} from '../processes/merge_filter_fastq.nf'
 include {QC_RUN} from '../processes/qc_run.nf'
 include {PARSE_QC_RUN} from '../processes/parse_qc_run.nf'
 include {MERGE_PARSED_STATS} from '../processes/merge_parsed_stats.nf'
 include {MERGE_MERGED_PARSED_STATS} from '../processes/merge_merged_parsed_stats.nf'
+include {PARSE_RUN_METRICS} from '../processes/parse_run_metrics.nf'
 
 workflow NANOPORE_QC {
     main:
@@ -58,7 +67,7 @@ workflow NANOPORE_QC {
             sample_sheet = sample_sheets.get("$run")
             tuple( run, barcode, stats, sample_sheet ) }
 
-        PARSE_QC_RUN( stats_added_sample_sheet, parse_stats )
+        PARSE_QC_RUN( stats_added_sample_sheet, parse_nanostat )
         
         grouped_files_run = PARSE_QC_RUN.out.parsed_stats
             .groupTuple()
@@ -69,7 +78,10 @@ workflow NANOPORE_QC {
         if(params.merge_all) {
             grouped_files_all = MERGE_PARSED_STATS.out.merged_parsed_stats
             .collect()
-            .view()
             MERGE_MERGED_PARSED_STATS( grouped_files_all, merge_parsed_run)
+        }
+
+        if(params.parse_run_metrics){
+            PARSE_RUN_METRICS( run_metrics , parse_metrics )
         }
 }

@@ -71,6 +71,7 @@ filename_run_stats <-
     barcode,
     min_read_length,
     min_qscore,
+    "parsed",
     sep = "_"
   )
 
