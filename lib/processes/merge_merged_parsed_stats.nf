@@ -9,7 +9,7 @@ process MERGE_MERGED_PARSED_STATS {
   """
     Rscript ${merge_parsed_runs_R} \
     --parsed_files ${stats} \
-    --run all_runs
+    --run all_runs \
     --min_read_length ${params.min_read_length} \
     --min_qscore ${params.min_qscore}
   """
