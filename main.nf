@@ -71,14 +71,6 @@ if(params.version){
     exit 0
 }
 
-
-// DEFINE PATHS # these are strings which are used to define input Channels,
-// but they are specified here as they may be referenced in LOGGING
-file1 = file("/path/to/file1.file", checkIfExists: true, glob: false)
-file2 = file("${params.some_parameter}", checkIfExists: true, glob: false)
-
-
-
 // PRINT STANDARD LOGGING INFO
 log.info ""
 log.info "         ==============================================="
@@ -90,7 +82,7 @@ else {
 log.info "         ===============================================" }
 log.info "         ~ version ${workflow.manifest.version}"
 log.info ""
-log.info "         input dir    : ${workflow.profile.tokenize(",").contains("test") ? "-" : "${params.input}"}"
+log.info "         input dir    : ${params.input}"
 log.info "         output dir   : ${params.output}"
 log.info ""
 log.info "         ==============================================="
@@ -104,7 +96,7 @@ include { NANOPORE_QC } from './lib/workflows/nanopore_qc.nf'
 workflow {
 
     NANOPORE_QC()
-    
+
 }
 
 // WORKFLOW TRACING # what to display when the pipeline finishes
