@@ -1,10 +1,12 @@
 process QC_RUN {
+    publishDir "${params.output}/Nanostat/${run}/${barcode}/", mode: 'copy'
   input:
     tuple val( run ), val( barcode ), path( fastq_file )
   output:
-    tuple val( "${run}" ), val( "${barcode}" ), path( "*.tsv"), emit: stats
+    tuple val( "${run}" ), val( "${barcode}" ), path( "${stats}" ), emit: stats
   script:
+  stats = "${fastq_file.simpleName}.tsv"
   """
-    NanoStat --fastq $fastq --outdir $outdir/stats/$2 -n $(basename $fastq .fastq.gz) -t 6 --tsv
+    NanoStat --fastq ${fastq_file} --outdir . -n ${stats} -t ${params.threads} --tsv
   """
 }
