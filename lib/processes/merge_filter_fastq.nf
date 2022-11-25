@@ -7,7 +7,7 @@ process MERGE_FILTER_FASTQ {
     """
         catfishq --min-length ${params.min_read_length} \
         --min-qscore ${params.min_qscore} \
-        --output ${barcode}_${run}_${params.min_read_length}_${params.min_qscore}.fastq \
+        --output ${run}_${barcode}_${params.min_read_length}_${params.min_qscore}.fastq \
         --recursive \
         ${barcode_fastq_dir}
     """

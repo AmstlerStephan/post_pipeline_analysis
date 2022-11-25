@@ -41,6 +41,7 @@ include {MERGE_FILTER_FASTQ} from '../processes/merge_filter_fastq.nf'
 include {QC_RUN} from '../processes/qc_run.nf'
 include {PARSE_QC_RUN} from '../processes/parse_qc_run.nf'
 include {MERGE_PARSED_STATS} from '../processes/merge_parsed_stats.nf'
+include {MERGE_MERGED_PARSED_STATS} from '../processes/merge_merged_parsed_stats.nf'
 
 workflow NANOPORE_QC {
     main:
@@ -67,7 +68,8 @@ workflow NANOPORE_QC {
 
         if(params.merge_all) {
             grouped_files_all = MERGE_PARSED_STATS.out.merged_parsed_stats
-            .toList()
+            .collect()
             .view()
+            MERGE_MERGED_PARSED_STATS( grouped_files_all, merge_parsed_run)
         }
 }
