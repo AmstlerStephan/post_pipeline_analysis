@@ -1,8 +1,5 @@
-library(jsonlite)
-library(dplyr)
+library(argparser)
 library(tidyverse)
-library(janitor)
-library(data.table)
 
 parser <- arg_parser("Commandline parser")
 parser <- add_argument(

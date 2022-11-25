@@ -39,9 +39,9 @@ Channel.fromPath("${params.input}/**/${params.sample_sheet}", type: 'file')
 
 run_metrics = Channel.fromPath("${params.input}/**/*.md", type: 'file')
 .map { 
-    sample_sheet_path ->
-        run = ( sample_sheet_path =~ /run\d*_*V*\d*/)[0]
-        tuple( run, barcode_path )
+    run_metrics_path ->
+        run = ( run_metrics_path =~ /run\d*_*V*\d*/)[0]
+        tuple( run, run_metrics_path )
 }
  
 
