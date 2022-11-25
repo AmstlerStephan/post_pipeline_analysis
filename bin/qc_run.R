@@ -1,10 +1,7 @@
-library(plyr)
-library(tidyr)
-library(readr)
-library(jsonlite)
 library(tidyverse)
 library(data.table)
 library(argparser)
+library(jsonlite)
 
 parser <- arg_parser("Commandline parser")
 parser <- add_argument(parser, "--nanostat_tsv", help = "NanoStat tsv file")
