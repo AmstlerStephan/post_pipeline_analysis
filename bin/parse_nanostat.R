@@ -1,5 +1,3 @@
-install.packages("argparser")
-
 library(tidyverse)
 library(data.table)
 library(argparser)
