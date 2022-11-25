@@ -28,9 +28,13 @@ barcodes_tuple = barcodes
         tuple( run, barcode, barcode_path ) }
 
 include {MERGE_FILTER_FASTQ} from '../processes/merge_filter_fastq.nf'
+include {QC_RUN} from '../processes/qc_run.nf'
+include {REFORMAT_QC_RUN} from '../processes/reformat_qc_run.nf'
 
 workflow NANOPORE_QC {
     main:
 
         MERGE_FILTER_FASTQ( barcodes_tuple )
+        QC_RUN( MERGE_FILTER_FASTQ.out.merged_fastq)
+        REFORMAT_QC_RUN( QC_RUN.out.stats, qc_run )
 }
