@@ -27,6 +27,12 @@ barcodes = barcodes
         tuple( run, barcode, barcode_path ) 
 }
 
+barcode_sizes = [:] 
+groupedBarcodes = barcodes
+.groupTuple()
+.map{ run, barcodes, barcode_paths -> 
+    barcode_sizes.put("$run", barcodes.size()) }
+
 sample_sheets = [:]
 Channel.fromPath("${params.input}/**${params.sample_sheet}", type: 'file')
 .map { 
@@ -41,7 +47,6 @@ run_metrics = Channel.fromPath("${params.input}/**.md", type: 'file')
         run = ( run_metrics_path =~ /run\d*_*V*\d*/)[0]
         tuple( run, run_metrics_path)
 }
- 
 
 include { NANOPORE_QC } from './nanopore_qc.nf'
 
@@ -52,7 +57,7 @@ include { get_run_dirs } from '../functions/get_run_dirs.nf' params(input: param
 runs = get_run_dirs(params.input)
 
 workflow QC_ALL_RUNS {
-    NANOPORE_QC( barcodes, sample_sheets, run_metrics )
+    NANOPORE_QC( barcodes, sample_sheets, run_metrics, barcode_sizes )
 
     if( params.merge_all ){
 

@@ -27,6 +27,7 @@ workflow NANOPORE_QC {
         barcodes
         sample_sheets
         run_metrics
+        barcode_sizes
     main:
         MERGE_FILTER_FASTQ( barcodes )
 
@@ -44,6 +45,8 @@ workflow NANOPORE_QC {
         PARSE_QC_RUN( stats_sample_sheet , parse_nanostat )
 
         PARSE_QC_RUN.out.parsed_stats
+        .map{ run, stats -> 
+            tuple groupKey(run, barcode_sizes.get("$run")), stats }
         .groupTuple()
         .set{ collected_parsed_stats }
         
