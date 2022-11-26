@@ -89,14 +89,16 @@ log.info "         ==============================================="
 log.info "         RUN NAME: ${workflow.runName}"
 log.info ""
 
-
 include { NANOPORE_QC } from './lib/workflows/nanopore_qc.nf'
+include { QC_ALL_RUNS } from './lib/workflows/qc_all_runs.nf'
 
 // SUB-WORKFLOWS
 workflow {
-
-    NANOPORE_QC()
-
+     if(params.all_runs){
+          QC_ALL_RUNS()
+     }else{
+          NANOPORE_QC( params.input )
+     }
 }
 
 // WORKFLOW TRACING # what to display when the pipeline finishes
