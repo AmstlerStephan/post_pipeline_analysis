@@ -15,12 +15,8 @@ parse_nanostat = file( "${projectDir}/bin/parse_nanostat.R", checkIfExists: true
 merge_parsed_run = file( "${projectDir}/bin/merge_parsed_run.R", checkIfExists: true)
 parse_metrics = file( "${projectDir}/bin/parse_run_metrics.R", checkIfExists: true)
 
-// STAGE CHANNELS
-if (params.all_runs) {
-    barcodes = Channel.fromPath("${params.input}/run*/fastq_pass/barcode*", type: 'dir') 
-} else {
-    barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type = 'dir')
-}
+barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type = 'dir')
+
 barcodes_tuple = barcodes
 .map { 
     barcode_path -> 
@@ -29,20 +25,9 @@ barcodes_tuple = barcodes
         tuple( run, barcode, barcode_path ) 
 }
 
-sample_sheets = [:]
-Channel.fromPath("${params.input}/**/${params.sample_sheet}", type: 'file')
-.map { 
-    sample_sheet_path ->
-        run = ( sample_sheet_path =~ /run\d*_*V*\d*/)[0]
-        sample_sheets.put("$run", sample_sheet_path)
-}
+sample_sheet = file("${params.input}/**/${params.sample_sheet}", checkIfExists: true)
 
-run_metrics = Channel.fromPath("${params.input}/**/*.md", type: 'file')
-.map { 
-    run_metrics_path ->
-        run = ( run_metrics_path =~ /run\d*_*V*\d*/)[0]
-        tuple( run, run_metrics_path )
-}
+run_metric = Channel.fromPath("${params.input}/**/*.md", checkIfExists: true)
  
 
 include {MERGE_FILTER_FASTQ} from '../processes/merge_filter_fastq.nf'
@@ -62,18 +47,9 @@ workflow NANOPORE_QC {
 
         QC_RUN( merged_filtered_fastq )
 
-        stats_added_sample_sheet = QC_RUN.out.stats
-        .map{ run, barcode, stats -> 
-            sample_sheet = sample_sheets.get("$run")
-            tuple( run, barcode, stats, sample_sheet ) }
-
-        PARSE_QC_RUN( stats_added_sample_sheet, parse_nanostat )
+        PARSE_QC_RUN( QC_RUN.out.stats, sample_sheet, parse_nanostat )
         
-        grouped_files_run = PARSE_QC_RUN.out.parsed_stats
-            .groupTuple()
-            .view()
-        
-        MERGE_PARSED_STATS( grouped_files_run, merge_parsed_run )
+        MERGE_PARSED_STATS( PARSE_QC_RUN.out.parsed_stats, merge_parsed_run )
 
         if(params.merge_all) {
             grouped_files_all = MERGE_PARSED_STATS.out.merged_parsed_stats
