@@ -17,22 +17,22 @@ parser <- add_argument(
 parser <- add_argument(
   parser,
   "--run",
-  help = "Sample sheet to join barcodes and samples"
+  help = "Run name"
 )
 parser <- add_argument(
   parser,
   "--barcode",
-  help = "Sample sheet to join barcodes and samples"
+  help = "Barcode name"
 )
 parser <- add_argument(
   parser,
   "--min_qscore",
-  help = "Sample sheet to join barcodes and samples"
+  help = "Min Q score if reads were filtered"
 )
 parser <- add_argument(
   parser,
   "--min_read_length",
-  help = "Sample sheet to join barcodes and samples"
+  help = "Min read length if reads were filtered"
 )
 
 argv <- parse_args(parser)
