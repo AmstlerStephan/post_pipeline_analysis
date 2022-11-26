@@ -19,11 +19,16 @@ parse_metrics = file( "${projectDir}/bin/parse_run_metrics.R", checkIfExists: tr
 sample_sheet = file("${params.input}/**${params.sample_sheet}", checkIfExists: true)
 run_metrics = file("${params.input}/**.md", checkIfExists: true)
 
-print sample_sheet
-print run_metrics
+barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode\\d*", type: 'dir')
 
-barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type = 'dir')
-.view()
+barcodes_tuple = barcodes
+.map { 
+    barcode_path -> 
+        run = (barcode_path =~ /run\d*_*V*\d*/)[0]
+        barcode = barcode_path.baseName
+        tuple( run, barcode, barcode_path ) 
+}
+
 
 include {MERGE_FILTER_FASTQ} from '../processes/merge_filter_fastq.nf'
 include {QC_RUN} from '../processes/qc_run.nf'
