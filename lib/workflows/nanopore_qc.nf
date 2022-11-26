@@ -24,21 +24,10 @@ include {PARSE_RUN_METRICS} from '../processes/parse_run_metrics.nf'
 
 workflow NANOPORE_QC {
     take:
-        run_path
+        barcodes
+        sample_sheets
+        run_metrics
     main:
-        sample_sheet = file("${run_path}/**${params.sample_sheet}", checkIfExists: true)
-        run_metrics = file("${run_path}/**.md", checkIfExists: true)
-        run_pattern = ~/run\d*_*V*\d*/
-        run = (run_path =~ /run\d*_*V*\d*/)[0]
-        print(run)
-
-        barcodes = Channel.fromPath("${run_path}/fastq_pass/barcode*", type: 'dir')
-        .map { 
-            barcode_path ->
-                barcode = barcode_path.baseName
-                tuple( run, barcode, barcode_path ) 
-        }
-
         MERGE_FILTER_FASTQ( barcodes )
 
         merged_filtered_fastq = MERGE_FILTER_FASTQ.out.merged_fastq
@@ -46,7 +35,13 @@ workflow NANOPORE_QC {
 
         QC_RUN( merged_filtered_fastq )
 
-        PARSE_QC_RUN( QC_RUN.out.stats, sample_sheet, parse_nanostat )
+        QC_RUN.out.stats
+        .map{ run, barcode, fastq -> 
+            sample_sheet = sample_sheets.get("$run")
+            tuple( run, barcode, fastq, sample_sheet)}
+        .set{ stats_sample_sheet }
+        
+        PARSE_QC_RUN( stats_sample_sheet , parse_nanostat )
 
         PARSE_QC_RUN.out.parsed_stats
         .groupTuple()
@@ -55,7 +50,7 @@ workflow NANOPORE_QC {
         MERGE_PARSED_STATS( collected_parsed_stats, merge_parsed_run )
 
         if(params.parse_run_metrics){
-            PARSE_RUN_METRICS( run_metrics, run, parse_metrics )
+            PARSE_RUN_METRICS( run_metrics, parse_metrics )
         }
 
         emit:

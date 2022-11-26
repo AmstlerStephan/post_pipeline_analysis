@@ -94,11 +94,9 @@ include { QC_ALL_RUNS } from './lib/workflows/qc_all_runs.nf'
 
 // SUB-WORKFLOWS
 workflow {
-     if(params.all_runs){
-          QC_ALL_RUNS()
-     }else{
-          NANOPORE_QC( params.input )
-     }
+
+     QC_ALL_RUNS()
+
 }
 
 // WORKFLOW TRACING # what to display when the pipeline finishes
