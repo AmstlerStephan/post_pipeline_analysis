@@ -46,7 +46,7 @@ workflow NANOPORE_QC {
 
         PARSE_QC_RUN.out.parsed_stats
         .map{ run, stats -> 
-            tuple groupKey(run, barcode_sizes.get("$run")), stats }
+            tuple ( groupKey(run, barcode_sizes.get("$run")), stats) }
         .groupTuple()
         .set{ collected_parsed_stats }
         
