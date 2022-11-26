@@ -1,8 +1,7 @@
 nextflow.enable.dsl = 2
 
 requiredParams = [
-    'input', 
-    //'all_runs'
+    'input'
 ]
 
 for (param in requiredParams) {
@@ -37,7 +36,6 @@ include {PARSE_RUN_METRICS} from '../processes/parse_run_metrics.nf'
 
 workflow NANOPORE_QC {
     main:
-
         MERGE_FILTER_FASTQ( barcodes )
 
         merged_filtered_fastq = MERGE_FILTER_FASTQ.out.merged_fastq
@@ -46,18 +44,14 @@ workflow NANOPORE_QC {
         QC_RUN( merged_filtered_fastq )
 
         PARSE_QC_RUN( QC_RUN.out.stats, sample_sheet, parse_nanostat )
+
+        PARSE_QC_RUN.out.parsed_stats
+        .groupTuple()
+        .set{ collected_parsed_stats }
         
-        MERGE_PARSED_STATS( PARSE_QC_RUN.out.parsed_stats, merge_parsed_run )
+        MERGE_PARSED_STATS( collected_parsed_stats, merge_parsed_run )
 
         if(params.parse_run_metrics){
             PARSE_RUN_METRICS( run_metrics, run, parse_metrics )
         }
 }
-
-/*
-        if(params.merge_all) {
-            grouped_files_all = MERGE_PARSED_STATS.out.merged_parsed_stats
-            .collect()
-            MERGE_MERGED_PARSED_STATS( grouped_files_all, merge_parsed_run)
-        }
-*/
