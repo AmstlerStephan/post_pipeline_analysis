@@ -16,17 +16,6 @@ parse_nanostat = file( "${projectDir}/bin/parse_nanostat.R", checkIfExists: true
 merge_parsed_run = file( "${projectDir}/bin/merge_parsed_run.R", checkIfExists: true)
 parse_metrics = file( "${projectDir}/bin/parse_run_metrics.R", checkIfExists: true)
 
-sample_sheet = file("${params.input}/**${params.sample_sheet}", checkIfExists: true)
-run_metrics = file("${params.input}/**.md", checkIfExists: true)
-run = (params.input =~ /run\d*_*V*\d*/)[0]
-
-barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type: 'dir')
-.map { 
-    barcode_path ->
-        barcode = barcode_path.baseName
-        tuple( run, barcode, barcode_path ) 
-}
-
 
 include {MERGE_FILTER_FASTQ} from '../processes/merge_filter_fastq.nf'
 include {QC_RUN} from '../processes/qc_run.nf'
@@ -36,7 +25,29 @@ include {MERGE_MERGED_PARSED_STATS} from '../processes/merge_merged_parsed_stats
 include {PARSE_RUN_METRICS} from '../processes/parse_run_metrics.nf'
 
 workflow NANOPORE_QC {
+    take:
+        runs 
+
     main:
+        run = runs
+        .map { run_path ->
+        (run_path =~ /run\d*_*V*\d*/)[0] }
+        .first()
+        
+        print "${run}/**${params.sample_sheet}"
+
+    /*
+        sample_sheet = file("${runs}/**${params.sample_sheet}", checkIfExists: true)
+        print sample_sheet
+        run_metrics = file("${runs}/**.md", checkIfExists: true)
+        run = runs.name
+
+        barcodes = Channel.fromPath("${runs}/fastq_pass/barcode*", type: 'dir')
+        .map { 
+            barcode_path ->
+                barcode = barcode_path.baseName
+                tuple( run, barcode, barcode_path ) 
+        }
 
         MERGE_FILTER_FASTQ( barcodes )
 
@@ -52,6 +63,7 @@ workflow NANOPORE_QC {
         if(params.parse_run_metrics){
             PARSE_RUN_METRICS( run_metrics, run, parse_metrics )
         }
+    */
 }
 
 /*
