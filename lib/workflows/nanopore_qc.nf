@@ -1,7 +1,8 @@
 nextflow.enable.dsl = 2
 
 requiredParams = [
-    'input', 'all_runs'
+    'input', 
+    //'all_runs'
 ]
 
 for (param in requiredParams) {
@@ -15,8 +16,10 @@ parse_nanostat = file( "${projectDir}/bin/parse_nanostat.R", checkIfExists: true
 merge_parsed_run = file( "${projectDir}/bin/merge_parsed_run.R", checkIfExists: true)
 parse_metrics = file( "${projectDir}/bin/parse_run_metrics.R", checkIfExists: true)
 
-barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type = 'dir')
+sample_sheet = file("${params.input}/**/${params.sample_sheet}", checkIfExists: true)
+run_metric = file("${params.input}/**/*.md", checkIfExists: true)
 
+barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type = 'dir')
 barcodes_tuple = barcodes
 .map { 
     barcode_path -> 
@@ -24,11 +27,6 @@ barcodes_tuple = barcodes
         barcode = barcode_path.baseName
         tuple( run, barcode, barcode_path ) 
 }
-
-sample_sheet = file("${params.input}/**/${params.sample_sheet}", checkIfExists: true)
-
-run_metric = Channel.fromPath("${params.input}/**/*.md", checkIfExists: true)
- 
 
 include {MERGE_FILTER_FASTQ} from '../processes/merge_filter_fastq.nf'
 include {QC_RUN} from '../processes/qc_run.nf'
