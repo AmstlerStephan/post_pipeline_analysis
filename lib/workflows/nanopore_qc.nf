@@ -50,12 +50,12 @@ workflow NANOPORE_QC {
         .groupTuple()
         .set{ collected_parsed_stats }
         
-        MERGE_PARSED_STATS( collected_parsed_stats,cod merge_parsed_run )
+        MERGE_PARSED_STATS( collected_parsed_stats, merge_parsed_run )
 
         if(params.parse_run_metrics){
             PARSE_RUN_METRICS( run_metrics, parse_metrics )
         }
 
-        emit:
+    emit:
         merged_tsv = MERGE_PARSED_STATS.out.merged_parsed_stats
 }

@@ -14,16 +14,16 @@ merge_parsed_run = file( "${projectDir}/bin/merge_parsed_run.R", checkIfExists: 
 
 // STAGE CHANNELS
 if (params.all_runs) {
-    barcodes = Channel.fromPath("${params.input}/run*/fastq_pass/barcode*", type: 'dir') 
+    barcodes_ch = Channel.fromPath("${params.input}/run*/fastq_pass/barcode*", type: 'dir') 
     sample_sheets_ch = Channel.fromPath("${params.input}/run*/lib/${params.sample_sheet}", type: 'file')
     run_metrics_ch = Channel.fromPath("${params.input}/run*/*.md", type: 'file')
 }else{
-    barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type: 'dir') 
+    barcodes_ch = Channel.fromPath("${params.input}/fastq_pass/barcode*", type: 'dir') 
     sample_sheets_ch = Channel.fromPath("${params.input}/lib/${params.sample_sheet}", type: 'file')
     run_metrics_ch = Channel.fromPath("${params.input}/*.md", type: 'file')
 }
 
-barcodes = barcodes
+barcodes = barcodes_ch
 .map { 
     barcode_path -> 
         run = (barcode_path =~ /run\d*_*V*\d*/)[0]
