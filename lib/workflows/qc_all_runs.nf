@@ -16,11 +16,11 @@ merge_parsed_run = file( "${projectDir}/bin/merge_parsed_run.R", checkIfExists: 
 if (params.all_runs) {
     barcodes_ch = Channel.fromPath("${params.input}/run*/fastq_pass/barcode*", type: 'dir') 
     sample_sheets_ch = Channel.fromPath("${params.input}/run*/lib/${params.sample_sheet}", type: 'file')
-    run_metrics_ch = Channel.fromPath("${params.input}/run*/*.md", type: 'file')
+    run_metrics_ch = Channel.fromPath("${params.input}/run*/report*.md", type: 'file')
 }else{
     barcodes_ch = Channel.fromPath("${params.input}/fastq_pass/barcode*", type: 'dir') 
     sample_sheets_ch = Channel.fromPath("${params.input}/lib/${params.sample_sheet}", type: 'file')
-    run_metrics_ch = Channel.fromPath("${params.input}/*.md", type: 'file')
+    run_metrics_ch = Channel.fromPath("${params.input}/report*.md", type: 'file')
 }
 
 barcodes = barcodes_ch
