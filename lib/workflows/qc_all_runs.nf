@@ -57,10 +57,6 @@ include { NANOPORE_QC } from './nanopore_qc.nf'
 
 include {MERGE_MERGED_PARSED_STATS} from '../processes/merge_merged_parsed_stats.nf'
 
-include { get_run_dirs } from '../functions/get_run_dirs.nf' params(input: params.input)
-
-runs = get_run_dirs(params.input)
-
 workflow QC_ALL_RUNS {
     NANOPORE_QC( barcodes, sample_sheets, run_metrics, barcode_sizes )
 
