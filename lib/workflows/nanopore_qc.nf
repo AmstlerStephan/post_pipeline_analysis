@@ -31,10 +31,13 @@ workflow NANOPORE_QC {
     main:
 
 
+        barcodes.view()
+
         MERGE_FILTER_FASTQ( barcodes )
 
         merged_filtered_fastq = MERGE_FILTER_FASTQ.out.merged_fastq
             .filter{ run, barcode, fastq_file -> fastq_file.countFastq() > params.min_reads_per_barcode }
+        //    .view()
 
         QC_RUN( merged_filtered_fastq )
 

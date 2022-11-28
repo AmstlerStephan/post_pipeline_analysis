@@ -64,6 +64,10 @@ workflow QC_ALL_RUNS {
 
     if( params.merge_all ){
 
-        MERGE_MERGED_PARSED_STATS( NANOPORE_QC.out.merged_tsv, merge_parsed_run)
+        NANOPORE_QC.out.merged_tsv
+        .collect()
+        .set{ collected_tsv_files }
+
+        MERGE_MERGED_PARSED_STATS( collected_tsv_files, merge_parsed_run)
     }
 }
