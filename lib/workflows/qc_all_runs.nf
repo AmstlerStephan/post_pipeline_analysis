@@ -14,7 +14,7 @@ merge_parsed_run = file( "${projectDir}/bin/merge_parsed_run.R", checkIfExists: 
 
 // STAGE CHANNELS
 if (params.all_runs) {
-    barcodes_ch = Channel.fromPath("${params.input}/run*/fastq_pass/barcode*", type: 'dir') 
+    barcodes_ch = Channel.fromPath("${params.input}/run*/fastq_pass/barcode*", type: 'dir')
     sample_sheets_ch = Channel.fromPath("${params.input}/run*/lib/${params.sample_sheet}", type: 'file')
     run_metrics_ch = Channel.fromPath("${params.input}/run*/report*.md", type: 'file')
 }else{
@@ -22,22 +22,25 @@ if (params.all_runs) {
     sample_sheets_ch = Channel.fromPath("${params.input}/lib/${params.sample_sheet}", type: 'file')
     run_metrics_ch = Channel.fromPath("${params.input}/report*.md", type: 'file')
 }
+barcode_sizes = [:] 
+sample_sheets = [:]
 
-barcodes = barcodes_ch
+barcodes_ch
 .map { 
     barcode_path -> 
         run = (barcode_path =~ /run\d*_*V*\d*/)[0]
         barcode = barcode_path.baseName
         tuple( run, barcode, barcode_path ) 
 }
+.set{ barcodes }
 
-barcode_sizes = [:] 
-groupedBarcodes = barcodes
+/*
+barcodes
 .groupTuple()
-.map{ run, barcodes, barcode_paths -> 
-    barcode_sizes.put("$run", barcodes.size()) }
+.map{ run, barcode_list, barcode_path_list -> 
+    barcode_sizes.put("$run", barcode_list.size())}
+*/
 
-sample_sheets = [:]
 sample_sheets_ch
 .map { 
     sample_sheet_path ->
@@ -45,16 +48,15 @@ sample_sheets_ch
         sample_sheets.put("$run", sample_sheet_path)
 }
 
-run_metrics = 
 run_metrics_ch
 .map { 
     run_metrics_path ->
         run = ( run_metrics_path =~ /run\d*_*V*\d*/)[0]
         tuple( run, run_metrics_path)
 }
+.set{ run_metrics }
 
 include { NANOPORE_QC } from './nanopore_qc.nf'
-
 include {MERGE_MERGED_PARSED_STATS} from '../processes/merge_merged_parsed_stats.nf'
 
 workflow QC_ALL_RUNS {
