@@ -19,7 +19,7 @@ parse_metrics = file( "${projectDir}/bin/parse_run_metrics.R", checkIfExists: tr
 if (params.all_runs) {
     barcodes = Channel.fromPath("${params.input}/run*/fastq_pass/barcode*", type: 'dir') 
 } else {
-    barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type = 'dir')
+    barcodes = Channel.fromPath("${params.input}/fastq_pass/barcode*", type: 'dir')
 }
 barcodes_tuple = barcodes
 .map { 
