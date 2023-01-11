@@ -1,7 +1,7 @@
 nextflow.enable.dsl = 2
 
 requiredParams = [
-    'input'
+    'input', 'fastq_dir'
 ]
 
 for (param in requiredParams) {
