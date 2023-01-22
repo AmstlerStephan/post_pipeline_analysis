@@ -16,7 +16,7 @@ print params.fastq_dir
 
 // STAGE CHANNELS
 if (params.all_runs) {
-    barcodes_ch = Channel.fromPath("${params.input}/run10_V14/${params.fastq_dir}/barcode*", type: 'dir')
+    barcodes_ch = Channel.fromPath("${params.input}/run\d*_V14/${params.fastq_dir}/barcode*", type: 'dir')
     .view()
     sample_sheets_ch = Channel.fromPath("${params.input}/run*/lib/${params.sample_sheet}", type: 'file')
     run_metrics_ch = Channel.fromPath("${params.input}/run*/report*.md", type: 'file')
