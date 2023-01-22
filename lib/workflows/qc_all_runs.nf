@@ -12,6 +12,8 @@ for (param in requiredParams) {
 
 merge_parsed_run = file( "${projectDir}/bin/merge_parsed_run.R", checkIfExists: true)
 
+print params.fastq_dir
+
 // STAGE CHANNELS
 if (params.all_runs) {
     barcodes_ch = Channel.fromPath("${params.input}/run*/${params.fastq_dir}/barcode*", type: 'dir')
@@ -36,13 +38,6 @@ barcodes_ch
         tuple( run, barcode, barcode_path ) 
 }
 .set{ barcodes }
-
-/*
-barcodes
-.groupTuple()
-.map{ run, barcode_list, barcode_path_list -> 
-    barcode_sizes.put("$run", barcode_list.size())}
-*/
 
 sample_sheets_ch
 .map { 
