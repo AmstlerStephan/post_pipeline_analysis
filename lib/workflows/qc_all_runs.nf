@@ -21,8 +21,8 @@ if (params.all_runs) {
     run_metrics_ch = Channel.fromPath("${params.input}/run*/report*.md", type: 'file')
 }else{
     barcodes_ch = Channel.fromPath("${params.input}/${params.fastq_dir}/barcode*", type: 'dir') 
-    sample_sheets_ch = Channel.fromPath("${params.input}/lib/${params.sample_sheet}", type: 'file')
-    run_metrics_ch = Channel.fromPath("${params.input}/report*.md", type: 'file')
+    sample_sheets_ch = Channel.fromPath("${params.sample_sheet}", type: 'file')
+    run_metrics_ch = Channel.fromPath("${params.run_metrics}", type: 'file')
 }
 barcode_sizes = [:] 
 sample_sheets = [:]
