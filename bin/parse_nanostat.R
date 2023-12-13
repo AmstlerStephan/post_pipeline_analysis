@@ -57,7 +57,7 @@ nanostat <- read_tsv(nanostat_tsv) %>%
   )
 
 sample_barcode_overview <-
-  fromJSON(sample_sheet)
+  read_tsv(sample_sheet)
 
 run_stats <- nanostat %>%
   inner_join(
