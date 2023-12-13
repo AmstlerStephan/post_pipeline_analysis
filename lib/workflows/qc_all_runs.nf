@@ -30,7 +30,7 @@ sample_sheets = [:]
 barcodes_ch
 .map { 
     barcode_path -> 
-        run = (barcode_path =~ /run\d*_*V*\d*/)[0]
+        run = (barcode_path =~ /1000G/)[0]
         barcode = barcode_path.baseName
         tuple( run, barcode, barcode_path ) 
 }
@@ -39,14 +39,14 @@ barcodes_ch
 sample_sheets_ch
 .map { 
     sample_sheet_path ->
-        run = ( sample_sheet_path =~ /run\d*_*V*\d*/)[0]
+        run = ( sample_sheet_path =~ /1000G/)[0]
         sample_sheets.put("$run", sample_sheet_path)
 }
 
 run_metrics_ch
 .map { 
     run_metrics_path ->
-        run = ( run_metrics_path =~ /run\d*_*V*\d*/)[0]
+        run = ( run_metrics_path =~ /1000G/)[0]
         tuple( run, run_metrics_path)
 }
 .set{ run_metrics }
