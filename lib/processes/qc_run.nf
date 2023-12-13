@@ -7,6 +7,6 @@ process QC_RUN {
   script:
   stats = "${fastq_file.simpleName}.tsv"
   """
-    NanoStat --fastq ${fastq_file} --outdir . -n ${stats} -t ${params.threads} --tsv
+    NanoStat --fastq ${fastq_file} --outdir . -n ${stats} -t ${params.threads}
   """
 }
